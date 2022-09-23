@@ -1,0 +1,58 @@
+version: "3"
+services:
+  mongo-replica-setup:
+    container_name: mongo-replica-setup-local
+    image: mongo:4.4
+    restart: on-failure
+    networks:
+      - common
+    volumes:
+      - ./scripts/rs-init.sh:/scripts/rs-init.sh
+    entrypoint: ["bash", "/scripts/rs-init.sh" ]
+    depends_on:
+      - mongo1-local
+      - mongo2-local
+      - mongo3-local
+  mongo1-local:
+    container_name: mongo1-local
+    image: mongo:4.4
+    volumes:
+      - ./data/mongo1:/data/db
+    networks:
+      - common
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all"]
+  mongo2-local:
+    container_name: mongo2-local
+    image: mongo:4.4
+    volumes:
+      - ./data/mongo2:/data/db
+    networks:
+      - common
+    ports:
+      - 27018:27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all"]
+  mongo3-local:
+    container_name: mongo3-local
+    image: mongo:4.4
+    volumes:
+      - ./data/mongo3:/data/db
+    networks:
+      - common
+    ports:
+      - 27019:27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all"]
+networks:
+  common:
+    driver: bridge
+volumes:
+  mongo1:
+  mongo2:
+  mongo3:
+
